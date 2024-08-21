@@ -10,7 +10,7 @@ from subprocess import Popen
 import sys 
 from decoder import DecodeAndVis, findClearKeypoints
 from douglasPeucker import simpilfyGraph, colorGraph
-from mrf import mrf
+# from mrf import mrf
 import requests
 import pickle 
 from PIL import Image
@@ -242,13 +242,13 @@ def post_process(graph, image):
     t0 = time()
     graph = simpilfyGraph(graph)
     graphcolor = colorGraph(graph, image[:,:,2+4*6:2+4*6+3])
-    try:
-        mrf_result = mrf(graph, graphcolor) 
-        graphcolor = mrf_result
-    except Exception as e:
-        print("mrf failed:")
-        print(e)
-        print("")
+    # try:
+    #     mrf_result = mrf(graph, graphcolor) 
+    #     graphcolor = mrf_result
+    # except Exception as e:
+    #     print("mrf failed:")
+    #     print(e)
+    #     print("")
 
     print("Simplification 1:", time() - t0)
 
