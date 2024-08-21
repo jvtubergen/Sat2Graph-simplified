@@ -286,26 +286,30 @@ def read_image(filename):
     return image.astype(float)
 
 
+def run():
 
-input_file    = "./sample.png"
-result_folder = "./results/" + strftime("%Y-%m-%d-%H:%M")
-# result_folder = "./results/" + "2024-07-08-13:45"
-output_file   = result_folder  + "/" + "infer"
-Popen("mkdir -p "+ result_folder, shell=True).wait() 
+    input_file    = "./sample.png"
+    result_folder = "./results/" + strftime("%Y-%m-%d-%H:%M")
+    # result_folder = "./results/" + "2024-07-08-13:45"
+    output_file   = result_folder  + "/" + "infer"
+    Popen("mkdir -p "+ result_folder, shell=True).wait() 
 
-# Infer
-sat_img = read_image(input_file)
-graph, image = infer_network(sat_img, output_file)
-# with open(name, 'rb') as file:
-#     graph = pickle.load(graph, open(output_file+"_graph.p","w"))
+    # Infer
+    sat_img = read_image(input_file)
+    graph, image = infer_network(sat_img, output_file)
+    # with open(name, 'rb') as file:
+    #     graph = pickle.load(graph, open(output_file+"_graph.p","w"))
 
-# Post-process
-lines, points = post_process(graph, image)
+    # Post-process
+    lines, points = post_process(graph, image)
 
-# Store edges and vertices as JSON.
-# Python 3 does not support numpy objects out of the box, requires to manually adapt JSON encoder [source](https://stackoverflow.com/a/65151218).
-def np_encoder(object):
-    if isinstance(object, np.generic):
-        return object.item()
+    # Store edges and vertices as JSON.
+    # Python 3 does not support numpy objects out of the box, requires to manually adapt JSON encoder [source](https://stackoverflow.com/a/65151218).
+    def np_encoder(object):
+        if isinstance(object, np.generic):
+                return object.item()
 
-json.dump({"graph":{"edges": lines, "vertices": points}}, open(result_folder + "/graph.json", "w"), indent=2, default=np_encoder)
+    json.dump({"graph":{"edges": lines, "vertices": points}}, open(result_folder + "/graph.json", "w"), indent=2, default=np_encoder)
+
+
+run()
