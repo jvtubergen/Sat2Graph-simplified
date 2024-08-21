@@ -302,5 +302,10 @@ graph, image = infer_network(sat_img, output_file)
 # Post-process
 lines, points = post_process(graph, image)
 
-# Store
-json.dump({"graph":{"edges": lines, "vertices": points}}, open(result_folder + "/graph.json", "w"), indent=2)
+# Store edges and vertices as JSON.
+# Python 3 does not support numpy objects out of the box, requires to manually adapt JSON encoder [source](https://stackoverflow.com/a/65151218).
+def np_encoder(object):
+    if isinstance(object, np.generic):
+        return object.item()
+
+json.dump({"graph":{"edges": lines, "vertices": points}}, open(result_folder + "/graph.json", "w"), indent=2, default=np_encoder)
