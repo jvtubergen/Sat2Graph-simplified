@@ -41,7 +41,7 @@ def infer(sat, road):
 
         # Model (tensorflow) setup.
         sess = tf.Session(config=tfcfg)
-        pbfile = "../models/globalv2.pb"
+        pbfile = "./models/globalv2.pb"
 
         with tf.gfile.GFile(pbfile, 'rb') as f:
             graph_def_optimized = tf.GraphDef()
@@ -167,7 +167,7 @@ def infer_network(sat_img, output_file):
     coordinates = [(y,x) for x in rsx for y in rsy]
     # print("nr of coordinates: ", len(coordinates))
         
-    nPhase = 10
+    nPhase = 2
     pc = 0 # Current iteration counter.
     tc = (len(coordinates) // batchsize) * nPhase # Total iterations.
 
@@ -272,8 +272,8 @@ def full_procedure():
     global input_file
     global result_folder
     # File IO parameters (defaults).
-    input_file    = "../sample.png"
-    result_folder = "../results/" + strftime("%Y-%m-%d-%H:%M")
+    input_file    = "./sample.png"
+    result_folder = "./results/" + strftime("%Y-%m-%d-%H:%M")
     output_file   = result_folder  + "/" + "infer"
     Popen("mkdir -p "+ result_folder, shell=True).wait() 
 
@@ -296,9 +296,9 @@ def read_image(filename):
 
 
 
-input_file    = "../sample.png"
-result_folder = "../results/" + strftime("%Y-%m-%d-%H:%M")
-# result_folder = "../results/" + "2024-07-08-13:45"
+input_file    = "./sample.png"
+result_folder = "./results/" + strftime("%Y-%m-%d-%H:%M")
+# result_folder = "./results/" + "2024-07-08-13:45"
 output_file   = result_folder  + "/" + "infer"
 Popen("mkdir -p "+ result_folder, shell=True).wait() 
 
