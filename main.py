@@ -279,26 +279,6 @@ def post_process(graph, image):
     return lines, points
 
 
-# Full procedure.
-def full_procedure():
-    global input_file
-    global result_folder
-    # File IO parameters (defaults).
-    input_file    = "./sample.png"
-    result_folder = "./results/" + strftime("%Y-%m-%d-%H:%M")
-    output_file   = result_folder  + "/" + "infer"
-    Popen("mkdir -p "+ result_folder, shell=True).wait() 
-
-    # Infer
-    sat_img = scipy.ndimage.imread(input_file).astype(np.float)
-    graph, image = infer_network(sat_img, output_file)
-    
-    # Post-process
-    lines, points = post_process(graph, image)
-
-    return lines, points
-
-
 def read_image(filename):
     image = Image.open(filename)
     image = image.convert("RGB")
