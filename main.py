@@ -31,21 +31,24 @@ def infer(sat, road):
     global tf_state
     if not tf_state["is_initiated"]:
         
-        print("Loading TF.")
-
+        print("Loading TF:")
+        print("* GPU properties.")
         # GPU properties.
         gpu_options = tf.GPUOptions(allow_growth=True)
         tfcfg = tf.ConfigProto(gpu_options=gpu_options)
         tfcfg.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1 # enable xla 
 
+        print("* Session.")
         # Model (tensorflow) setup.
         sess = tf.Session(config=tfcfg)
         pbfile = "./models/globalv2.pb"
 
+        print("* Optimized state.")
         with tf.gfile.GFile(pbfile, 'rb') as f:
             graph_def_optimized = tf.GraphDef()
             graph_def_optimized.ParseFromString(f.read())
 
+        print("* Loading nodes.")
         for node in graph_def_optimized.node:            
             if node.op == 'RefSwitch':
                 node.op = 'Switch'
@@ -58,12 +61,22 @@ def infer(sat, road):
             elif node.op == 'AssignAdd':
                 node.op = 'Add'
                 if 'use_locking' in node.attr: del node.attr['use_locking']
-
+            
+        
+        print("* Loading Tensors.")
         tf_state["sess"]       = sess
         tf_state["output"]     = tf.import_graph_def(graph_def_optimized, return_elements=['output:0'])
-        tf_state["inputsat"]   = tf.get_default_graph().get_tensor_by_name('import/inputsat:0')
-        tf_state["inputroad"]  = tf.get_default_graph().get_tensor_by_name('import/inputroad:0')
-        tf_state["istraining"] = tf.get_default_graph().get_tensor_by_name('import/istraining:0')
+
+        print("* Listing Tensors:")
+        graph = tf.get_default_graph()
+        for op in graph.get_operations():
+            print(f"  Operation: {op.name}")
+            for tensor in op.outputs:
+                print(f"   - Tensor: {tensor.name}")
+
+        tf_state["inputsat"]   = tf.get_default_graph().get_tensor_by_name('inputsat:0')
+        tf_state["inputroad"]  = tf.get_default_graph().get_tensor_by_name('inputroad:0')
+        tf_state["istraining"] = tf.get_default_graph().get_tensor_by_name('istraining:0')
 
         tf_state["is_initiated"] = True
     
