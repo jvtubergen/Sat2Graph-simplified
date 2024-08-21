@@ -383,10 +383,10 @@ def locate_stacking_road(graph):
 	return crossing_point, adjustment
 
 
-def _vis(_node_neighbors, save_file, size=2048, bk=None, draw_intersection = False):
+def _vis(_node_neighbors, save_file, bk=None, draw_intersection = False, w = 0, h = 0):
 	node_neighbors = _node_neighbors
 
-	img = np.ones((size, size, 3), dtype=np.uint8) * 255
+	img = np.ones((h, w, 3), dtype=np.uint8) * 255
 
 	color_node = (255,0,0)
 
@@ -514,29 +514,11 @@ def findClearKeypoints(vertexness, thr = 0.5):
 
 
 # Main function 
-def DecodeAndVis(imagegraph, filename, imagesize=256, max_degree=6, thr=0.5, edge_thr = 0.5, snap=False, kp_limit = 500, drop=True, use_graph_refine=True, testing=False, spacenet = False, angledistance_weight = 100, snap_dist = 15, fast=False):
+def DecodeAndVis(imagegraph, filename, max_degree=6, thr=0.5, edge_thr = 0.5, snap=False, kp_limit = 500, drop=True, use_graph_refine=True, testing=False, spacenet = False, angledistance_weight = 100, snap_dist = 15, fast=False, w = 0, h = 0):
 	kp_limit = 10000000
 
-	# for training 
-	if imagesize < 600:
-		kp_limit = 500
-
-	if testing :
-		kp_limit = 10000000
-
-	# for visualization 
-	if not fast:
-		if snap :
-			rgb = np.zeros((imagesize*4, imagesize*4, 3), dtype=np.uint8)
-			rgb2 = np.zeros((imagesize*4, imagesize*4, 3), dtype=np.uint8)
-
-		else:
-			rgb = 255 * np.ones((imagesize*4, imagesize*4, 3), dtype=np.uint8)
-			rgb2 = 255 * np.ones((imagesize*4, imagesize*4, 3), dtype=np.uint8)
-
-
 	# Step-1: Find vertices 
-	vertexness = imagegraph[:,:,0].reshape((imagesize, imagesize))
+	vertexness = imagegraph[:,:,0].reshape((h, w))
 
 	kp = np.copy(vertexness)
 	smooth_kp = scipy.ndimage.filters.gaussian_filter(np.copy(kp), 1)
@@ -549,7 +531,7 @@ def DecodeAndVis(imagegraph, filename, imagesize=256, max_degree=6, thr=0.5, edg
 
 	# locate edge endpoints
 	# we do this becasue the local maima may not represent all the vertices
-	edgeEndpointMap = np.zeros((imagesize, imagesize))
+	edgeEndpointMap = np.zeros((h, w))
 
 	for i in range(len(keypoints[0])):
 		if cc > kp_limit:
@@ -565,7 +547,7 @@ def DecodeAndVis(imagegraph, filename, imagesize=256, max_degree=6, thr=0.5, edg
 				x1 = int(x + vector_norm * imagegraph[x,y,2+4*j+2])
 				y1 = int(y + vector_norm * imagegraph[x,y,2+4*j+3])
 
-				if x1 >= 0 and x1 < imagesize and y1 >= 0 and y1 < imagesize:
+				if x1 >= 0 and x1 < h and y1 >= 0 and y1 < w:
 					edgeEndpointMap[x1,y1] = imagegraph[x,y,2+4*j] * imagegraph[x,y,0]
 
 	edgeEndpointMap = scipy.ndimage.filters.gaussian_filter(edgeEndpointMap, 3)
@@ -798,15 +780,11 @@ def DecodeAndVis(imagegraph, filename, imagesize=256, max_degree=6, thr=0.5, edg
 		spurs_thr = 25
 		isolated_thr = 100
 
-	if imagesize < 400:
-		spurs_thr = 25
-		isolated_thr = 100
-
 	if use_graph_refine:
 		graph = graph_refine(neighbors, isolated_thr=isolated_thr, spurs_thr=spurs_thr)
 		
-		if not fast:
-			_vis(neighbors , filename+"_norefine_bk.png", size=imagesize)
+		# if not fast:
+			# _vis(neighbors , filename+"_norefine_bk.png", size=imagesize)
 
 		rc = 100
 		while rc > 0:
@@ -814,27 +792,17 @@ def DecodeAndVis(imagegraph, filename, imagesize=256, max_degree=6, thr=0.5, edg
 				isolated_thr = 0
 				spurs_thr = 0
 			
-			if imagesize < 400:
-				spurs_thr = 25
-				isolated_thr = 100
-
 			graph, rc = graph_refine_deloop(graph_refine(graph, isolated_thr=isolated_thr, spurs_thr=spurs_thr))
 
 		if spacenet :
 			spurs_thr = 25
 			isolated_thr = 100
 		
-		if imagesize < 400:
-			spurs_thr = 25
-			isolated_thr = 100
-
 		graph = graph_shave(graph, spurs_thr = spurs_thr)
 	else:
 		graph = neighbors 
 	
-	if not fast or True:
-		_vis(graph, filename+"_refine_bk.png", size=imagesize, draw_intersection=True)
-
+	# _vis(graph, filename+"_refine_bk.png", draw_intersection=True, w=w, h=h)
 
 	cc = 0
 
