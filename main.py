@@ -2,9 +2,7 @@ import logging
 import json 
 import os 
 import os.path  
-import scipy.ndimage 
 import math 
-import cv2
 import numpy as np 
 import tensorflow.compat.v1 as tf 
 from time import time, strftime
@@ -15,6 +13,7 @@ from douglasPeucker import simpilfyGraph, colorGraph
 from mrf import mrf
 import requests
 import pickle 
+from PIL import Image
 
 # Constants.
 SAT_SCALE = 2
@@ -144,7 +143,7 @@ def infer_network(sat_img, output_file):
 
     # Normalize and reformat image (for inferrence code).  
     max_v = 255
-    sat_img = (sat_img.astype(np.float)/ max_v - 0.5) * 0.9 
+    sat_img = (sat_img / max_v - 0.5) * 0.9 
     sat_img = sat_img.reshape((1,tile_size_h * SAT_SCALE,tile_size_w * SAT_SCALE,3))
 
 
@@ -287,12 +286,11 @@ def full_procedure():
     return lines, points
 
 
-import PIL as pil
 def read_image(filename):
-    image = pil.Image.open(filename)
+    image = Image.open(filename)
     image = image.convert("RGB")
     image = np.array(image)
-    return image
+    return image.astype(float)
 
 
 
@@ -303,7 +301,7 @@ output_file   = result_folder  + "/" + "infer"
 Popen("mkdir -p "+ result_folder, shell=True).wait() 
 
 # Infer
-sat_img = scipy.ndimage.imread(input_file).astype(np.float)
+sat_img = read_image(input_file)
 graph, image = infer_network(sat_img, output_file)
 # with open(name, 'rb') as file:
 #     graph = pickle.load(graph, open(output_file+"_graph.p","w"))
