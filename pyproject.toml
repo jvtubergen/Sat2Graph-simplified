@@ -30,6 +30,7 @@ dependencies = [
   "pillow",
   "rtree",
   "tensorflow",
+  "requests", # gmaps-image dependency for API requests.
 ]
 
 [project.urls]

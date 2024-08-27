@@ -14,6 +14,7 @@ from douglasPeucker import simpilfyGraph, colorGraph
 import requests
 import pickle 
 from PIL import Image
+from gmaps.lib import *
 
 # Constants.
 SAT_SCALE = 2
@@ -312,4 +313,21 @@ def run():
     json.dump({"graph":{"edges": lines, "vertices": points}}, open(result_folder + "/graph.json", "w"), indent=2, default=np_encoder)
 
 
-run()
+
+
+
+# run()
+
+
+# Example (Retrieve/Construct image with GSD ~0.88 between two coordinates):
+def run_example():
+    upperleft  = (41.799575, -87.606117)
+    lowerright = (41.787669, -87.585498)
+    scale = 1
+    zoom = 17 # For given latitude and scale results in gsd of ~ 0.88
+    api_key = read_api_key()
+    # superimage = construct_image(upperleft, lowerright, zoom, scale, api_key)   # Same result as below.
+    superimage, coordinates = construct_image(upperleft, lowerright, zoom-1, scale+1, api_key) # Same result as above.
+    write_image(superimage, "superimage.png")
+
+run_example()

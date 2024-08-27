@@ -1,0 +1,3 @@
+[submodule "gmaps"]
+	path = gmaps
+	url = https://github.com/jvtubergen/gmaps-image
